@@ -1,0 +1,42 @@
+# Laravel
+
+/node_modules
+
+/public/storage
+
+/storage/*.key
+
+/vendor
+/public/attachments
+#environment file
+
+.env
+
+.env.testing
+
+
+
+### Code ###
+
+/.idea
+
+/.vscode
+
+bootstrap/Cache/packages.php
+
+bootstrap/Cache/services.php
+vsc-extensions.txt
+
+
+.htaccess
+
+.phpunit.result.cache
+
+yarn-error.log
+
+composer.lock
+
+/.package-lock.json
+bootstrap/cache/config.php
+public/.DS_Store
+/fitlifesa.zip

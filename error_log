@@ -1,0 +1,4 @@
+[04-Dec-2022 16:47:31 Asia/Riyadh] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/mahmoudabuzaid/public_html/fitlife-staging/vendor/psr/log/src/LoggerInterface.php on line 30
+[04-Dec-2022 16:47:31 Asia/Riyadh] PHP Fatal error:  Exception thrown without a stack frame in Unknown on line 0
+[04-Dec-2022 16:47:31 Asia/Riyadh] PHP Parse error:  syntax error, unexpected '|', expecting variable (T_VARIABLE) in /home/mahmoudabuzaid/public_html/fitlife-staging/vendor/psr/log/src/LoggerInterface.php on line 30
+[04-Dec-2022 16:47:31 Asia/Riyadh] PHP Fatal error:  Exception thrown without a stack frame in Unknown on line 0

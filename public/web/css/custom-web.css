@@ -1,0 +1,14 @@
+.imagebackground {
+    background-image: url("../../web/images/header_1.JPG");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+@media only screen and (max-width: 780px) {
+    .imagebackground {
+        background-image: url("../../web/images/body_1.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+  }
