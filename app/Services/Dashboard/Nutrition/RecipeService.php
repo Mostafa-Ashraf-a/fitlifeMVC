@@ -59,17 +59,19 @@ class RecipeService
         {
             foreach ($request->food_exchange_id as $key => $value)
             {
-                RecipeFoodExchange::updateOrCreate(
+                RecipeFoodExchange::firstOrCreate(
                     [
                         'recipe_id'         => $model->id,
                         'food_exchange_id'  => $value,
                     ],
-                    [
-                        'recipe_id'         => $model->id,
-                        'food_exchange_id'  => $value,
-                    ]
                 );
             }
+
+            RecipeFoodExchange::where('recipe_id',$model->id)
+                              ->whereNotIn('food_exchange_id',$request->food_exchange_id)
+                              ->delete();
+
+
         }
     }
 
