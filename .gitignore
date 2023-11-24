@@ -28,7 +28,6 @@ bootstrap/Cache/services.php
 vsc-extensions.txt
 
 
-.htaccess
 
 .phpunit.result.cache
 
