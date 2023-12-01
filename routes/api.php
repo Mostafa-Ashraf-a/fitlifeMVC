@@ -38,6 +38,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['jsonResponse', 'cors']], funct
     Route::post('customer-login', [GuestUserController::class, 'customerLogin']);
 
     Route::group(['prefix' => 'customer', 'middleware' => ['auth:user-api']], function () {
+        Route::get('test',function (){
+            app(\App\Services\API\User\Nutrition\SuggestedMealPlan\CalculateFoodExchangesMeasurementsForMasterServingService::class)->execute(auth()->guard('user-api')->user());
+        });
         Route::post('change-profile-picture', [\App\Http\Controllers\API\UserController::class, 'changeProfilePicture']);
         Route::post('change-profile-info', [\App\Http\Controllers\API\UserController::class, 'update']);
 
