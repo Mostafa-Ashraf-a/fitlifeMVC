@@ -19,7 +19,7 @@ class AppendFoodExchangeCalculationsToPlanResponseService
               ->with('foodExchanges.measurementUnits')
               ->get();
 
-        $servingPerFoodType = $this->countFoodType($recipes);
+        $servingPerFoodType = $this->mapServingPerFoodType($planResponse['serving_per_food_types']);
         $calculations = app(CalculateFoodExchangesMeasurementsForMasterServingService::class)->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
         foreach ($planResponse['meal_types'] as $mealTypeIdx => $mealType){
             foreach ($mealType['recipes'] as $recipeIdx => $recipe){
@@ -33,30 +33,38 @@ class AppendFoodExchangeCalculationsToPlanResponseService
         }
         return $planResponse;
     }
-    public function countFoodType( $recipes): array
+    public function mapServingPerFoodType( $ServingPerFoodTypes): array
     {
+
         $starches = 0;
         $fruits = 0;
         $vegetables = 0;
         $meats = 0;
         $dairy = 0;
         $oils = 0;
-     foreach ($recipes as $recipe){
-         foreach ($recipe->foodExchanges as $foodExchange) {
-             if ($foodExchange->food_type_id == 1) {
-                 $starches += 1;
-             } elseif ($foodExchange->food_type_id == 2) {
-                 $fruits += 1;
-             } elseif ($foodExchange->food_type_id == 3) {
-                 $vegetables += 1;
-             } elseif ($foodExchange->food_type_id == 4) {
-                 $meats += 1;
-             } elseif ($foodExchange->food_type_id == 5) {
-                 $dairy += 1;
-             } else {
-                 $oils +=1;
-             }
+     foreach ($ServingPerFoodTypes as $servingPerFoodType){
+         switch ($servingPerFoodType['id']){
+             case 1:
+                 $starches = $servingPerFoodType['serving_value'];
+                 break;
+             case 2:
+                 $fruits = $servingPerFoodType['serving_value'];
+                 break;
+             case 3:
+                 $vegetables = $servingPerFoodType['serving_value'];
+                 break;
+             case 4:
+                 $meats = $servingPerFoodType['serving_value'];
+                 break;
+             case 5:
+                 $dairy = $servingPerFoodType['serving_value'];
+                 break;
+             case 6:
+                 $oils = $servingPerFoodType['serving_value'];
+                 break;
          }
+
+
      }
         return [
             'Starches' => $starches,

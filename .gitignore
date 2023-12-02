@@ -39,3 +39,6 @@ composer.lock
 bootstrap/cache/config.php
 public/.DS_Store
 /fitlifesa.zip
+/fitlife-bk.zip
+/fitlife-mvc.zip
+/var/www/html/storage/logs/laravel.log
