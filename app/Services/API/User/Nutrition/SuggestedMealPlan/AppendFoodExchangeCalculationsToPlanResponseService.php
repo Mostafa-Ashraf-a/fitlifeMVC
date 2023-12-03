@@ -25,8 +25,13 @@ class AppendFoodExchangeCalculationsToPlanResponseService
             foreach ($mealType['recipes'] as $recipeIdx => $recipe){
               foreach ($recipe['food_exchanges']as $foodExchangeIdx =>  $foodExchange){
                 foreach ($foodExchange['measurement_units']as $measurementUnitIdx => $measurementUnit){
+
+                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['original_quantity'] =
+                        $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['quantity'];
+
                     $x = $this->findPlanQuantity($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']);
-                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['plan_quantity'] = $x;
+                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['quantity'] = $x;
+
                 }
               }
             }
@@ -85,7 +90,7 @@ class AppendFoodExchangeCalculationsToPlanResponseService
                        $foodExchangeData['id'] == $foodExchangeId &&
                        $measurementUnit['id'] == $measurementUnitId
                    ){
-                       return $measurementUnit['plan_quantity'];
+                       return $measurementUnit['plan_quantity'] ?: 1;
                    }
                 }
             }
