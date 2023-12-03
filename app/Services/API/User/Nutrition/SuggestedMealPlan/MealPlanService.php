@@ -107,6 +107,7 @@ class MealPlanService
         $dairy = 0;
         $oils = 0;
 
+        DB::beginTransaction();
         if($request->duration == 1)
         {
             $this->checkExistingDailyPlan($user, $request);
@@ -116,12 +117,14 @@ class MealPlanService
             $this->checkExistingWeeklyPlan($user, $request);
         }
         $checkRequestDuration = $this->checkPlanRequestDuration($request, $user);
+        $recipes = [];
         foreach ($request->recipes as $recipe)
         {
             $foodExchanges = Recipe::query()
                 ->where('id', $recipe['recipe_id'])
-                ->with('foodExchanges')
+                ->with('foodExchanges.measurementUnits')
                 ->first();
+            $recipes[] = $foodExchanges;
 
             $this->createUserSuggestedPlan($request, $user, $recipe, $checkRequestDuration);
             list($starches, $fruits, $vegetables, $meats, $dairy, $oils) = $this->countFoodType($foodExchanges, $starches, $fruits, $vegetables, $meats, $dairy, $oils, $request, $user, $recipe);
@@ -129,6 +132,8 @@ class MealPlanService
 
         $servingPerFoodType = $this->servingPerFoodType($user, $starches, $fruits, $vegetables, $meats, $dairy, $oils);
         $this->createServingPerFoodType($request, $user, $servingPerFoodType);
+        app(CalculateFoodExchangesMeasurementsForMasterServingService::class)->execute($user,$recipes,$servingPerFoodType);
+        DB::commit();
     }
 
     public function servingPerFoodType($user, $starches, $fruits, $vegetables, $meats, $dairy, $oils) : array

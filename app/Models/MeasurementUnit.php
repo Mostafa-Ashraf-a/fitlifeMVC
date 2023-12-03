@@ -17,4 +17,9 @@ class MeasurementUnit extends Model implements TranslatableContract
         return $this->belongsToMany(FoodExchange::class,'food_exchange_measurements');
     }
 
+    public function planQuantity()
+    {
+        return $this->hasOne(PlanQuantity::class,'measurement_unit_id');
+    }
+
 }

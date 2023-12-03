@@ -7,6 +7,7 @@ use App\Http\Resources\User\Nutrition\SubmittedPlan\PlanResource;
 use App\Http\Resources\User\Nutrition\Suggested\Running\Daily\PlanResource as DailyRunningResource;
 use App\Models\MealPlan;
 
+use App\Services\API\User\Nutrition\SuggestedMealPlan\AppendFoodExchangeCalculationsToPlanResponseService;
 use App\Services\API\User\Nutrition\SuggestedMealPlan\MealPlanService;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
@@ -43,7 +44,8 @@ class RunningPlanController extends Controller
 
         if($plan && ($plan->dailyRunningMealTypes->count() != 0))
         {
-            return $this->success(" ", DailyRunningResource::make($plan));
+//            dd(json_decode(DailyRunningResource::make($plan)->toJson(),true));
+            return $this->success(" ", app(AppendFoodExchangeCalculationsToPlanResponseService::class)->execute(json_decode(DailyRunningResource::make($plan)->toJson(),true)));
         }
 
         $yesterday = Carbon::yesterday('Asia/Riyadh')->format('Y-m-d');
