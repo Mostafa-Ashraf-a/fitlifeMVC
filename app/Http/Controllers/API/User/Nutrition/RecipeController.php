@@ -7,6 +7,7 @@ use App\Http\Resources\User\Nutrition\RecipeResource;
 use App\Models\MealRecipe;
 use App\Models\MealType;
 use App\Models\Recipe;
+use App\Services\API\User\Nutrition\SuggestedMealPlan\AppendFoodExchangeCalculationsToSingleRecipeResponseService;
 use App\Traits\ApiResponse;
 
 class RecipeController extends Controller
@@ -43,7 +44,16 @@ class RecipeController extends Controller
                 return $this->success(" ", null);
             }
         }
-        return $this->success(" ", RecipeResource::make($recipe));
+        return $this->success(
+            " ",
+            (new AppendFoodExchangeCalculationsToSingleRecipeResponseService())
+                ->execute(
+                    json_decode(RecipeResource::make($recipe)->toJson(), true),
+                    request('plan_id'),
+                    request('duration'),
+                    request('day_number'),
+                )
+        );
     }
 
     public function shuffle($mealTypeId)

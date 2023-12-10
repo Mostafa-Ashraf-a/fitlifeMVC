@@ -45,7 +45,11 @@ class RunningPlanController extends Controller
         if($plan && ($plan->dailyRunningMealTypes->count() != 0))
         {
 //            dd(json_decode(DailyRunningResource::make($plan)->toJson(),true));
-            return $this->success(" ", app(AppendFoodExchangeCalculationsToPlanResponseService::class)->execute(json_decode(DailyRunningResource::make($plan)->toJson(),true)));
+            return $this->success(
+                " ",
+                app(AppendFoodExchangeCalculationsToPlanResponseService::class)
+                ->execute(json_decode(DailyRunningResource::make($plan)->toJson(),true))
+            );
         }
 
         $yesterday = Carbon::yesterday('Asia/Riyadh')->format('Y-m-d');
