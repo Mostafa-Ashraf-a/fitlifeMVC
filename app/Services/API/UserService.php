@@ -110,7 +110,11 @@ class UserService
         if ($user->otp_count != 0)
             return $this->error("You have exceeded your verification code usage limit");
 
-        $otpCode = rand(10000, 99999);
+        if(config('sms.static_otp')){
+            $otpCode = 11111;
+        }else{
+            $otpCode = rand(10000, 99999);
+        }
 
         $user->update(['otp_code' => $otpCode, 'otp_count' => 1]);
 
