@@ -20,7 +20,11 @@ class UserService
             return false;
         }
 
-        $otpCode = rand(10000, 99999);
+        if(config('sms.static_otp')){
+            $otpCode = 11111;
+        }else{
+            $otpCode = rand(10000, 99999);
+        }
 
         $user = User::create([
             'full_name' =>  $request->full_name,
