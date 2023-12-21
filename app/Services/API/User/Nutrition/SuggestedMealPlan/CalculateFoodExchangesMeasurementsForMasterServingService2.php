@@ -47,7 +47,7 @@ class CalculateFoodExchangesMeasurementsForMasterServingService2
                         'id' => $measurementUnit['measurement_unit_id'],
                         'plan_quantity' =>($measurementUnit['quantity'] ??0) * $percentage[$foodExchange['food_type_id']] ,
                         'quantity' =>$measurementUnit['quantity'] ??0,
-                        'needs_count' =>($measurementUnit['plan_quantity']??0)/$measurementUnit['quantity']
+                        'needs_count' => round(($measurementUnit['plan_quantity']??0)/$measurementUnit['quantity'],3)
                     ];
                     $foodExchangeData['measurementUnits'][] = $measurementUnitData;
                 }
