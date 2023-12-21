@@ -20,7 +20,7 @@ class AppendFoodExchangeCalculationsToPlanResponseService
               ->get();
 
         $servingPerFoodType = $this->mapServingPerFoodType($planResponse['serving_per_food_types']);
-        $calculations = app(CalculateFoodExchangesMeasurementsForMasterServingService::class)->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
+        $calculations = app(CalculateFoodExchangesMeasurementsForMasterServingService2::class)->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
         foreach ($planResponse['meal_types'] as $mealTypeIdx => $mealType){
             foreach ($mealType['recipes'] as $recipeIdx => $recipe){
               foreach ($recipe['food_exchanges']as $foodExchangeIdx =>  $foodExchange){
