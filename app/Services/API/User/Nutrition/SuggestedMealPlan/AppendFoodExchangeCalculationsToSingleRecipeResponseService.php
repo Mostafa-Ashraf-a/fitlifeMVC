@@ -32,6 +32,9 @@ class AppendFoodExchangeCalculationsToSingleRecipeResponseService
                     foreach ( $ingredient[ 'measurement_units' ] as $ingredientMeasurementUnitIdx => $ingredientMeasurementUnit ) {
                         $recipeResponse[ 'ingredients' ][ $ingredientIdx ][ 'measurement_units' ][ $ingredientMeasurementUnitIdx ][ 'quantity' ] =
                             $this->getMeasurement($ingredientMeasurementUnit, $foodExchange);
+
+                        $recipeResponse[ 'ingredients' ][ $ingredientIdx ][ 'measurement_units' ][ $ingredientMeasurementUnitIdx ][ 'name' ] =
+                             $this->getNameWithServingPercentage($ingredientMeasurementUnit, $foodExchange);
                     }
                 }
             }
@@ -44,6 +47,14 @@ class AppendFoodExchangeCalculationsToSingleRecipeResponseService
         foreach ( $foodExchange[ 'measurement_units' ] as $measurementUnit ) {
             if ( $measurementUnit[ 'id' ] == $ingredientMeasurementUnit[ 'id' ] ) {
                 return $measurementUnit[ 'quantity' ];
+            }
+        }
+    }
+    private function getNameWithServingPercentage($ingredientMeasurementUnit, $foodExchange)
+    {
+        foreach ( $foodExchange[ 'measurement_units' ] as $measurementUnit ) {
+            if ( $measurementUnit[ 'id' ] == $ingredientMeasurementUnit[ 'id' ] ) {
+                return $measurementUnit[ 'name' ];
             }
         }
     }

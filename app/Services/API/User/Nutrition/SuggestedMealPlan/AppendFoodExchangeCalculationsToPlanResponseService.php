@@ -26,11 +26,20 @@ class AppendFoodExchangeCalculationsToPlanResponseService
               foreach ($recipe['food_exchanges']as $foodExchangeIdx =>  $foodExchange){
                 foreach ($foodExchange['measurement_units']as $measurementUnitIdx => $measurementUnit){
 
+
                     $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['original_quantity'] =
                         $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['quantity'];
 
                     $x = $this->findPlanQuantity($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']);
                     $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['quantity'] = $x;
+
+//                    dd( $this->findServingPercentage($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']));
+//                    dd($planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]);
+                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['name'] .=
+                      '('.
+                    $this->findServingPercentage($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']) .')';
+
+
 
                 }
               }
@@ -92,6 +101,23 @@ class AppendFoodExchangeCalculationsToPlanResponseService
                    ){
                        return $measurementUnit['plan_quantity'] ?: 1;
                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    protected function findServingPercentage($calculations,$recipeId,$foodExchangeId,$measurementUnitId)
+    {
+        foreach ($calculations as $recipesData){
+            foreach ($recipesData['foodExchanges'] as $foodExchangeData){
+                foreach ($foodExchangeData['measurementUnits']as $measurementUnit){
+                    if ($recipesData['recipe_id'] == $recipeId &&
+                        $foodExchangeData['id'] == $foodExchangeId &&
+                        $measurementUnit['id'] == $measurementUnitId
+                    ){
+                        return $measurementUnit['needs_count'] ?: 1;
+                    }
                 }
             }
         }

@@ -45,9 +45,9 @@ class CalculateFoodExchangesMeasurementsForMasterServingService2
 //                    dd($measurementUnit);
                     $measurementUnitData = [
                         'id' => $measurementUnit['measurement_unit_id'],
-                        'plan_quantity' =>round((($measurementUnit['quantity'] ??0) * $percentage[$foodExchange['food_type_id']]),3) ,
+                        'plan_quantity' =>(($measurementUnit['quantity'] ??0) * $percentage[$foodExchange['food_type_id']]) ,
                         'quantity' =>$measurementUnit['quantity'] ??0,
-                        'needs_count' => ($measurementUnit['plan_quantity']??0)/$measurementUnit['quantity']
+                        'needs_count' =>  $percentage[$foodExchange['food_type_id']]
                     ];
                     $foodExchangeData['measurementUnits'][] = $measurementUnitData;
                 }
@@ -115,7 +115,7 @@ class CalculateFoodExchangesMeasurementsForMasterServingService2
             if ($foodType == self::Fruits_ID){
 //                dd($foodType,$needs,$recipesServingPerFoodTypes[$foodType]);
             }
-            $percentage[$foodType] = round($needs/($recipesServingPerFoodTypes[$foodType] ?? 1),1);
+            $percentage[$foodType] = ceil($needs/($recipesServingPerFoodTypes[$foodType] ?? 1)) ?? 1;
         }
        return $percentage;
 
