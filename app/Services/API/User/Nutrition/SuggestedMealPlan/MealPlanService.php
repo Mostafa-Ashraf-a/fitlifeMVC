@@ -144,12 +144,12 @@ class MealPlanService
             ->first();
 
         return [
-            'Starches'        => $starches !=0 ? round($masterServing->starches / $starches) : $starches,
-            'Fruits'          => $fruits !=0 ? round($masterServing->fruits / $fruits) : $fruits,
-            'Vegetables'      => $vegetables !=0 ? round($masterServing->vegetables / $vegetables) : $vegetables,
-            'Meats'           => $meats !=0 ? round($masterServing->meats / $meats) : $meats,
-            'Dairy'           => $dairy !=0 ? round($masterServing->dairy / $dairy) : $dairy,
-            'Oils'            => $oils !=0 ? round($masterServing->oils / $oils) : $oils,
+            'Starches'        => $starches ,
+            'Fruits'          => $fruits ,
+            'Vegetables'      => $vegetables ,
+            'Meats'           => $meats ,
+            'Dairy'           => $dairy ,
+            'Oils'            => $oils ,
         ];
     }
 
