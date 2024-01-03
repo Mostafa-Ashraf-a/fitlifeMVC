@@ -144,12 +144,12 @@ class MealPlanService
             ->first();
 
         return [
-            'Starches'        => $starches ,
-            'Fruits'          => $fruits ,
-            'Vegetables'      => $vegetables ,
-            'Meats'           => $meats ,
-            'Dairy'           => $dairy ,
-            'Oils'            => $oils ,
+            'Starches'        => $masterServing->starches ,
+            'Fruits'          => $masterServing->fruits ,
+            'Vegetables'      => $masterServing->vegetables ,
+            'Meats'           => $masterServing->meats ,
+            'Dairy'           => $masterServing->dairy ,
+            'Oils'            => $masterServing->oils ,
         ];
     }
 
