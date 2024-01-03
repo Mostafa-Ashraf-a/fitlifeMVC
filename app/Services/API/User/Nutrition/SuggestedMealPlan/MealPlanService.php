@@ -132,7 +132,7 @@ class MealPlanService
 
         $servingPerFoodType = $this->servingPerFoodType($user, $starches, $fruits, $vegetables, $meats, $dairy, $oils);
         $this->createServingPerFoodType($request, $user, $servingPerFoodType);
-        app(CalculateFoodExchangesMeasurementsForMasterServingService::class)->execute($user,$recipes,$servingPerFoodType);
+//        app(CalculateFoodExchangesMeasurementsForMasterServingService::class)->execute($user,$recipes,$servingPerFoodType);
         DB::commit();
     }
 
