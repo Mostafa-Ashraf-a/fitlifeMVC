@@ -22,7 +22,7 @@ class RunningPlanController extends Controller
     const ACTIVE_WEEKLY_PLAN = 1;
     public function __construct(MealPlanService $service)
     {
-        \request()->headers->set('Accept','application/json');
+        \request()->headers->set('Accept', 'application/json');
         $this->service = $service;
     }
 
@@ -31,59 +31,56 @@ class RunningPlanController extends Controller
         $now = Carbon::now('Asia/Riyadh')->format('Y-m-d');
 
         $plan = MealPlan::query()
-            ->whereHas('dailyRunningMealTypes', function ($query) use($now) {
-                $query->where('status','=',1)
-                    ->whereDate('start_date','<=',$now)
-                    ->whereDate('end_date','>=',$now);
-            })->whereHas('dailyRunningMealTypes.dailyRunningSuggestedRecipes', function ($query) use($now){
-                $query->where('status','=',1)
-                    ->whereDate('start_date','<=',$now)
-                    ->whereDate('end_date','>=',$now);
+            ->whereHas('dailyRunningMealTypes', function ($query) use ($now) {
+                $query->where('status', '=', 1)
+                    ->whereDate('start_date', '<=', $now)
+                    ->whereDate('end_date', '>=', $now);
+            })->whereHas('dailyRunningMealTypes.dailyRunningSuggestedRecipes', function ($query) use ($now) {
+                $query->where('status', '=', 1)
+                    ->whereDate('start_date', '<=', $now)
+                    ->whereDate('end_date', '>=', $now);
             })->first();
 
 
-        if($plan && ($plan->dailyRunningMealTypes->count() != 0))
-        {
-//            dd(json_decode(DailyRunningResource::make($plan)->toJson(),true));
+        if ($plan && ($plan->dailyRunningMealTypes->count() != 0)) {
+            //            dd(json_decode(DailyRunningResource::make($plan)->toJson(),true));
             return $this->success(
                 " ",
                 app(AppendFoodExchangeCalculationsToPlanResponseService::class)
-                ->execute(json_decode(DailyRunningResource::make($plan)->toJson(),true))
+                    ->execute(json_decode(DailyRunningResource::make($plan)->toJson(), true))
             );
         }
 
         $yesterday = Carbon::yesterday('Asia/Riyadh')->format('Y-m-d');
 
         $getLastDailyRunningPlan = DB::table('user_suggested_plan')
-            ->where('user_id',auth()->guard('user-api')->user()->id)
+            ->where('user_id', auth()->guard('user-api')->user()->id)
             ->where('duration', 1)
             ->where('status', self::ACTIVE_WEEKLY_PLAN)
             ->where('end_date', $yesterday)
-            ->select('plan_id','duration','day_number')
+            ->select('plan_id', 'duration', 'day_number')
             ->first();
 
         $getLastWeeklyRunningPlan = DB::table('user_suggested_plan')
-            ->where('user_id',auth()->guard('user-api')->user()->id)
+            ->where('user_id', auth()->guard('user-api')->user()->id)
             ->where('duration', 2)
             ->where('status', self::ACTIVE_WEEKLY_PLAN)
             ->where('end_date', $yesterday)
-            ->select('plan_id','duration','day_number')
+            ->select('plan_id', 'duration', 'day_number')
             ->latest()
             ->first();
 
-        if($getLastDailyRunningPlan)
-        {
+        if ($getLastDailyRunningPlan) {
             $data = [
-              'plan_id'     => $getLastDailyRunningPlan->plan_id,
-              'duration'    => $getLastDailyRunningPlan->duration,
-              'day_number'  => $getLastDailyRunningPlan->day_number,
-              'question'    => __('api.do_you_want_to_use_the_previous_plan')
+                'plan_id'     => $getLastDailyRunningPlan->plan_id,
+                'duration'    => $getLastDailyRunningPlan->duration,
+                'day_number'  => $getLastDailyRunningPlan->day_number,
+                'question'    => __('api.do_you_want_to_use_the_previous_plan')
             ];
             return $this->success(" ", $data);
         }
 
-        if($getLastWeeklyRunningPlan)
-        {
+        if ($getLastWeeklyRunningPlan) {
             $data = [
                 'plan_id'     => $getLastWeeklyRunningPlan->plan_id,
                 'duration'    => $getLastWeeklyRunningPlan->duration,
@@ -93,7 +90,7 @@ class RunningPlanController extends Controller
             return $this->success(" ", $data);
         }
 
-        return $this->success("it looks like you don't have a suggested running plan at the moment. Please create a new plan to get started",null);
+        return $this->success("it looks like you don't have a suggested running plan at the moment. Please create a new plan to get started", null);
     }
 
     public function show($planId)
@@ -102,23 +99,22 @@ class RunningPlanController extends Controller
 
         $plan = MealPlan::query()
             ->with('mealTypes.suggestedRecipes')
-            ->where('id',$planId)
-            ->whereHas('mealTypes', function ($query) use($planId){
+            ->where('id', $planId)
+            ->whereHas('mealTypes', function ($query) use ($planId) {
                 $query->where('plan_id', $planId)
-                    ->where('status',1)
+                    ->where('status', 1)
                     ->where('duration', 2)
-                    ->where('day_number','=',\request()->query('day_number'));
+                    ->where('day_number', '=', \request()->query('day_number'));
             })
-            ->whereHas('mealTypes.suggestedRecipes', function ($query) use($planId){
+            ->whereHas('mealTypes.suggestedRecipes', function ($query) use ($planId) {
                 $query->where('plan_id', $planId)
-                    ->where('status',1)
+                    ->where('status', 1)
                     ->where('duration', 2)
-                    ->where('day_number','=',\request()->query('day_number'));
+                    ->where('day_number', '=', \request()->query('day_number'));
             })
             ->first();
 
-        if($plan && ($plan->mealTypes->count() != 0))
-        {
+        if ($plan && ($plan->mealTypes->count() != 0)) {
             return $this->success(" ", PlanResource::make($plan));
         }
 
@@ -128,12 +124,12 @@ class RunningPlanController extends Controller
     public function listWeeklyPlans()
     {
         $data = DB::table('user_suggested_plan')
-            ->where('user_id',auth()->guard('user-api')->user()->id)
+            ->where('user_id', auth()->guard('user-api')->user()->id)
             ->where('duration', self::WEEKLY_PLAN)
             ->where('status', self::ACTIVE_WEEKLY_PLAN)
             ->groupBy('plan_id')
-            ->orderBy('day_number','ASC')
-            ->select('plan_id','day_number','start_date','end_date')
+            ->orderBy('day_number', 'ASC')
+            ->select('plan_id', 'day_number', 'start_date', 'end_date')
             ->get();
 
         return $this->success(" ", $data);
@@ -141,10 +137,9 @@ class RunningPlanController extends Controller
 
     public function update(Request $request, $id)
     {
-        if($request->duration == 1)
-        {
+        if ($request->duration == 1) {
             DB::table('user_suggested_plan')
-                ->where('user_id',auth()->guard('user-api')->user()->id)
+                ->where('user_id', auth()->guard('user-api')->user()->id)
                 ->where('duration', 1)
                 ->where('status', 1)
                 ->where('plan_id', $id)
@@ -156,23 +151,21 @@ class RunningPlanController extends Controller
             return $this->success(__('api.plan_has_been_reactivated'), true);
         }
 
-        if($request->duration == 2)
-        {
+        if ($request->duration == 2) {
             $weekPlans = DB::table('user_suggested_plan')
-                ->where('user_id',auth()->guard('user-api')->user()->id)
+                ->where('user_id', auth()->guard('user-api')->user()->id)
                 ->where('duration', 2)
                 ->where('status', 1)
                 ->groupBy('plan_id')
-                ->orderBy('day_number','ASC')
-                ->select('plan_id','duration','day_number','start_date','end_date')
+                ->orderBy('day_number', 'ASC')
+                ->select('plan_id', 'duration', 'day_number', 'start_date', 'end_date')
                 ->get();
 
             $count = 0;
 
-            foreach ($weekPlans as $plan)
-            {
+            foreach ($weekPlans as $plan) {
                 DB::table('user_suggested_plan')
-                    ->where('user_id',auth()->guard('user-api')->user()->id)
+                    ->where('user_id', auth()->guard('user-api')->user()->id)
                     ->where('plan_id', $plan->plan_id)
                     ->where('day_number', $plan->day_number)
                     ->where('duration', 2)
@@ -187,6 +180,4 @@ class RunningPlanController extends Controller
             return $this->success(__('api.plan_has_been_reactivated'), true);
         }
     }
-
-
 }
