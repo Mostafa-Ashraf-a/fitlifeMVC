@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Http;
 Route::view('/login', 'admin.login')->name('login');
 
 
+
 Route::get('/', function () {
     return view('web.index_ar');
 })->name('web.index');
