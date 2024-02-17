@@ -35,9 +35,9 @@ class AppendFoodExchangeCalculationsToPlanResponseService
 
 //                    dd( $this->findServingPercentage($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']));
 //                    dd($planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]);
-                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['name'] .=
-                      '{('.
-                    $this->findServingPercentage($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']) .')}';
+//                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['name'] .=
+//                      '{('.
+//                    $this->findServingPercentage($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']) .')}';
 
 
 
