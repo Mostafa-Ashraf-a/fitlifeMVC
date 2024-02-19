@@ -208,7 +208,9 @@
                                 جرب قوة تطبيقنا من خلال تنزيله من App Store أو Google Play.
                             </p>
                             <p dir="ltr">
-                                <a target="_blank" href="https://google.com" class="btn-custom">
+                                <a target="_blank"
+                                    href="https://apps.apple.com/sa/app/fitlife-%D9%81%D8%AA-%D9%84%D8%A7%D9%8A%D9%81/id6450390199"
+                                    class="btn-custom">
                                     <img src="{{ asset('web/images/app-store.png') }}" width="20" height="20"
                                         alt="">
                                     App Store</a>
