@@ -159,7 +159,7 @@ return [
     155 => "Cable Biceps Drag Curl",
     156 => "Cable Biceps Crossover, High",
     157 => "Lat Pulldown , Wide Grip",
-    158 => " Lat Pulldown , Normal Overhand Grip",
+    158 => "Cable Lat Pulldown , Normal Overhand Grip",
     159 => "Lat Pulldown , Normal Underhand Grip",
     160 => "Lat Pulldown, V-bar ",
     161 => "Lat Pulldown, Bar Dual Handles",
