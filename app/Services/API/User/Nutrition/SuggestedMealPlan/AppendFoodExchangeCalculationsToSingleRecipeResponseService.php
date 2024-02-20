@@ -11,15 +11,15 @@ class AppendFoodExchangeCalculationsToSingleRecipeResponseService
     {
 
         $plan         = MealPlan::find($planId);
-        $planResponse = app(AppendFoodExchangeCalculationsToPlanResponseService::class)
-            ->execute(json_decode(DailyRunningResource::make($plan)->toJson(), true));
-        $calculations = app(AppendFoodExchangeCalculationsToPlanResponseService::class)
-            ->getCalculations(null,null,$planResponse);
-        dd($calculations);
+        $result = app(AppendFoodExchangeCalculationsToPlanResponseService::class)
+            ->execute(json_decode(DailyRunningResource::make($plan)->toJson(), true),true);
+        $calculations = $result['calculations'];
+        $planResponse = $result['planResponse'];
         foreach ( $planResponse[ 'meal_types' ] as $mealType ) {
             foreach ( $mealType[ 'recipes' ] as $recipe ) {
                 if ( $recipeResponse[ 'id' ] == $recipe[ 'id' ] ) {
                     $recipeResponse = $this->mapResponse($recipeResponse, $recipe);
+                    $recipeResponse = $this->appendMacronutrient($recipeResponse, $recipe);
                     break;
                 }
             }
@@ -61,6 +61,25 @@ class AppendFoodExchangeCalculationsToSingleRecipeResponseService
                 return $measurementUnit[ 'name' ];
             }
         }
+    }
+
+    private function appendMacronutrient(array $recipeResponse, $recipe)
+    {
+        $res=[
+            'cal'=> 0,
+            'proteins'=>0,
+            'carbs'=>0,
+            'fats'=>0
+        ];
+        foreach ( $recipe[ 'food_exchanges' ] as $foodExchange ) {
+            $foodExchange[ 'food_type_id' ] = $foodExchange[ 'food_type' ];
+            $foodExchange[ 'measurementUnits' ] = $foodExchange[ 'measurement_units' ];
+            foreach ( app(GetNutrientsValueService::class)->execute($foodExchange) as $name => $value ) {
+                $res[$name] += $value;
+            }
+        }
+        $recipeResponse['macronutrients'] = $res;
+        return $recipeResponse;
     }
 
 }

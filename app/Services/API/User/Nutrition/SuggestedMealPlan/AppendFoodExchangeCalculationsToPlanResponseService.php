@@ -15,17 +15,16 @@ class AppendFoodExchangeCalculationsToPlanResponseService
         }
         return $recipesIds;
     }
-    public function execute($planResponse)
+    public function execute($planResponse,$appendCalculationsToResult=false)
     {
         $recipesIds =$this->getRecipesIds($planResponse);
         $recipes = $this->getRecipes($recipesIds);
         $servingPerFoodType = $this->mapServingPerFoodType($planResponse['serving_per_food_types']);
-        $calculations = $this->getCalculations($recipes,$servingPerFoodType);
-//        $calculations = app(CalculateFoodExchangesMeasurementsForMasterServingService2::class)
-//            ->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
+        $calculations = app(CalculateFoodExchangesMeasurementsForMasterServingService2::class)
+            ->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
         foreach ($planResponse['meal_types'] as $mealTypeIdx => $mealType){
 
-            $planResponse['meal_types'][$mealTypeIdx] = $this->appendNutrient($mealType,$calculations);
+            $planResponse['meal_types'][$mealTypeIdx] = $this->appendMacronutrient($mealType,$calculations);
 
             foreach ($mealType['recipes'] as $recipeIdx => $recipe){
               foreach ($recipe['food_exchanges']as $foodExchangeIdx =>  $foodExchange){
@@ -35,8 +34,11 @@ class AppendFoodExchangeCalculationsToPlanResponseService
                     $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['original_quantity'] =
                         $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['quantity'];
 
-                    $x = $this->findPlanQuantity($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']);
-                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['quantity'] = $x;
+                    $quantity = $this->findPlanQuantity($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']);
+                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['quantity'] = $quantity;
+
+                    $needsCount = $this->findNeedsCount($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']);
+                    $planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]['needs_count'] = $needsCount;
 
 //                    dd( $this->findServingPercentage($calculations,$recipe['id'],$foodExchange['id'],$measurementUnit['id']));
 //                    dd($planResponse['meal_types'][$mealTypeIdx]['recipes'][$recipeIdx]['food_exchanges'][$foodExchangeIdx]['measurement_units'][$measurementUnitIdx]);
@@ -50,22 +52,12 @@ class AppendFoodExchangeCalculationsToPlanResponseService
               }
             }
         }
+        if ($appendCalculationsToResult){
+            return  compact('planResponse','calculations');
+        }
         return $planResponse;
     }
 
-    public function getCalculations($recipes=null,$servingPerFoodType=null,$planResponse=null)
-    {
-        if (!$recipes){
-            $recipes = $this->getRecipes(
-                $this->getRecipesIds($planResponse)
-            );
-        }
-        if (!$servingPerFoodType){
-            $this->mapServingPerFoodType($planResponse['serving_per_food_types']);
-        }
-       return app(CalculateFoodExchangesMeasurementsForMasterServingService2::class)
-            ->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
-    }
     public function mapServingPerFoodType( $ServingPerFoodTypes): array
     {
 
@@ -125,6 +117,22 @@ class AppendFoodExchangeCalculationsToPlanResponseService
         }
         return 0;
     }
+    protected function findNeedsCount($calculations,$recipeId,$foodExchangeId,$measurementUnitId)
+    {
+        foreach ($calculations as $recipesData){
+            foreach ($recipesData['foodExchanges'] as $foodExchangeData){
+                foreach ($foodExchangeData['measurementUnits']as $measurementUnit){
+                    if ($recipesData['recipe_id'] == $recipeId &&
+                        $foodExchangeData['id'] == $foodExchangeId &&
+                        $measurementUnit['id'] == $measurementUnitId
+                    ){
+                        return $measurementUnit['needs_count'] ?: 0;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
 
     /**
      * @param array $recipesIds
@@ -155,26 +163,26 @@ class AppendFoodExchangeCalculationsToPlanResponseService
         return 0;
     }
 
-    protected function appendNutrient($mealType, $calculations)
+    protected function appendMacronutrient($mealType, $calculations)
     {
-        $nutrients = [
+        $macronutrients = [
             'cal',
             'proteins',
             'carbs',
             'fats'
         ];
-       foreach ($nutrients as $nutrient){
+       foreach ($macronutrients as $nutrient){
            $mealType[$nutrient] = 0;
        }
        foreach ($mealType['recipes'] as $recipe){
-           foreach ($this->getNutrientsValue($recipe, $calculations) as $name => $value){
+           foreach ($this->getMacronutrientsValue($recipe, $calculations) as $name => $value){
                $mealType[$name] += $value;
            }
        }
         return $mealType;
     }
 
-    private function getNutrientsValue($recipe, $calculations)
+    private function getMacronutrientsValue($recipe, $calculations)
     {
         foreach ($calculations as $calculation){
             if ($calculation['recipe_id'] == $recipe['id']){
