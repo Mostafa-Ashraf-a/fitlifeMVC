@@ -22,6 +22,9 @@ class CalculateFoodExchangesMeasurementsForMasterServingService
     const Dairy_ID      = 5;
     const Oils_ID       = 6;
 
+    /**
+     * @deprecated
+     * */
     public function execute(User $user,$recipes,$servingPerFoodType)
     {
         $servingPerFoodType = $this->mapServingPerFoodType($servingPerFoodType);

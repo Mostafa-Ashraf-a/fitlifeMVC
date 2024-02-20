@@ -9,9 +9,13 @@ class AppendFoodExchangeCalculationsToSingleRecipeResponseService
 {
     public function execute($recipeResponse, $planId, $duration, $dayNumber)
     {
+
         $plan         = MealPlan::find($planId);
         $planResponse = app(AppendFoodExchangeCalculationsToPlanResponseService::class)
             ->execute(json_decode(DailyRunningResource::make($plan)->toJson(), true));
+        $calculations = app(AppendFoodExchangeCalculationsToPlanResponseService::class)
+            ->getCalculations(null,null,$planResponse);
+        dd($calculations);
         foreach ( $planResponse[ 'meal_types' ] as $mealType ) {
             foreach ( $mealType[ 'recipes' ] as $recipe ) {
                 if ( $recipeResponse[ 'id' ] == $recipe[ 'id' ] ) {

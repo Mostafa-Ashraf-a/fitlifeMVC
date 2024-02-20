@@ -6,22 +6,27 @@ use App\Models\Recipe;
 
 class AppendFoodExchangeCalculationsToPlanResponseService
 {
-    public function execute($planResponse)
-    {
+    protected function getRecipesIds($planResponse){
         $recipesIds =[];
         foreach ($planResponse['meal_types'] as $mealType){
             foreach ($mealType['recipes'] as $recipe){
                 $recipesIds [] = $recipe['id'];
             }
         }
-        $recipes = Recipe::query()
-              ->whereIn('id', $recipesIds)
-              ->with('foodExchanges.measurementUnits')
-              ->get();
-
+        return $recipesIds;
+    }
+    public function execute($planResponse)
+    {
+        $recipesIds =$this->getRecipesIds($planResponse);
+        $recipes = $this->getRecipes($recipesIds);
         $servingPerFoodType = $this->mapServingPerFoodType($planResponse['serving_per_food_types']);
-        $calculations = app(CalculateFoodExchangesMeasurementsForMasterServingService2::class)->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
+        $calculations = $this->getCalculations($recipes,$servingPerFoodType);
+//        $calculations = app(CalculateFoodExchangesMeasurementsForMasterServingService2::class)
+//            ->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
         foreach ($planResponse['meal_types'] as $mealTypeIdx => $mealType){
+
+            $planResponse['meal_types'][$mealTypeIdx] = $this->appendNutrient($mealType,$calculations);
+
             foreach ($mealType['recipes'] as $recipeIdx => $recipe){
               foreach ($recipe['food_exchanges']as $foodExchangeIdx =>  $foodExchange){
                 foreach ($foodExchange['measurement_units']as $measurementUnitIdx => $measurementUnit){
@@ -46,6 +51,20 @@ class AppendFoodExchangeCalculationsToPlanResponseService
             }
         }
         return $planResponse;
+    }
+
+    public function getCalculations($recipes=null,$servingPerFoodType=null,$planResponse=null)
+    {
+        if (!$recipes){
+            $recipes = $this->getRecipes(
+                $this->getRecipesIds($planResponse)
+            );
+        }
+        if (!$servingPerFoodType){
+            $this->mapServingPerFoodType($planResponse['serving_per_food_types']);
+        }
+       return app(CalculateFoodExchangesMeasurementsForMasterServingService2::class)
+            ->execute(auth()->guard('user-api')->user(),$recipes,$servingPerFoodType);
     }
     public function mapServingPerFoodType( $ServingPerFoodTypes): array
     {
@@ -107,6 +126,18 @@ class AppendFoodExchangeCalculationsToPlanResponseService
         return 0;
     }
 
+    /**
+     * @param array $recipesIds
+     * @return Recipe[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\LaravelIdea\Helper\App\Models\_IH_Recipe_C|\LaravelIdea\Helper\App\Models\_IH_Recipe_QB[]
+     */
+    public function getRecipes(array $recipesIds)
+    {
+        return Recipe::query()
+                     ->whereIn('id', $recipesIds)
+                     ->with('foodExchanges.measurementUnits')
+                     ->get();
+    }
+
     protected function findServingPercentage($calculations,$recipeId,$foodExchangeId,$measurementUnitId)
     {
         foreach ($calculations as $recipesData){
@@ -122,6 +153,35 @@ class AppendFoodExchangeCalculationsToPlanResponseService
             }
         }
         return 0;
+    }
+
+    protected function appendNutrient($mealType, $calculations)
+    {
+        $nutrients = [
+            'cal',
+            'proteins',
+            'carbs',
+            'fats'
+        ];
+       foreach ($nutrients as $nutrient){
+           $mealType[$nutrient] = 0;
+       }
+       foreach ($mealType['recipes'] as $recipe){
+           foreach ($this->getNutrientsValue($recipe, $calculations) as $name => $value){
+               $mealType[$name] += $value;
+           }
+       }
+        return $mealType;
+    }
+
+    private function getNutrientsValue($recipe, $calculations)
+    {
+        foreach ($calculations as $calculation){
+            if ($calculation['recipe_id'] == $recipe['id']){
+                return $calculation['nutrients'];
+            }
+        }
+        return [];
     }
 
 }
