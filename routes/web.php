@@ -156,3 +156,6 @@ Route::get('testing', function (Request $request) {
 
     return view('web.testing', compact('foods', 'foods_translations'));
 });
+
+
+#Here is
