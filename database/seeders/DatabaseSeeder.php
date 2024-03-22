@@ -38,5 +38,6 @@ class DatabaseSeeder extends Seeder
         $this->call(FoodExchangeMeasurementSeeder::class);
         $this->call(PlanManagementSeeder::class);
         $this->call(MealTypeSeeder::class);
+        $this->call(WorkoutsSeeder::class);
     }
 }
